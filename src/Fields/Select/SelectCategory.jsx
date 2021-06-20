@@ -1,19 +1,14 @@
 import React from 'react'
 
-const Select = ({data, onChange}) => {
+const SelectCategory = ({data, onChange}) => {
    let options = ''
-   if(typeof data === 'object' && data[0].name)
+   if(typeof data === 'object')
    {
     options = data.map((item, i) => {
         return <option key={item.id} value={item.id}>{item.name}</option>
     })
    }
-   else{
-    options = ''
-   }
-    
-
-    return <div>
+   return <div>
       <select onChange={onChange}>
           <option>Choose</option>
           {options}
@@ -21,4 +16,4 @@ const Select = ({data, onChange}) => {
     </div>
 }
 
-export default Select
+export default SelectCategory

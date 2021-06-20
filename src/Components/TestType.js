@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { createPortal } from "react-dom";
-import Select from "../Fields/Select";
+import SelectCategory from "../Fields/Select/SelectCategory";
 import { getCategory, storeTestType } from "../Utils/Shared/apiCall";
 
 const TestType = () => {
   const [data, setData] = useState();
   const [testType, setTestType] = useState("");
+  const [testCost, setTestCost] = useState("");
   const [categoryId, setCategoryId] = useState("");
 
   useEffect(() => {
@@ -16,7 +16,6 @@ const TestType = () => {
         let serverData = res.data;
         if (mounted) {
           setData(serverData);
-          console.log(serverData);
         }
       })
       .catch((err) => {
@@ -34,13 +33,14 @@ const TestType = () => {
   };
 
   const handleSaveClick = () => {
-    if (!isNaN(categoryId) && testType !== "") {
-      const promiseSave = storeTestType(categoryId, testType);
+    if (!isNaN(categoryId) && testType !== "" && !isNaN(testCost)) {
+      const promiseSave = storeTestType(categoryId, testType, testCost);
       promiseSave
         .then((res) => {
           let serverData = res.data;
+          alert(serverData);
           setTestType("");
-          console.log(serverData);
+          setTestCost("");
         })
         .catch((err) => {
           console.log(err);
@@ -56,7 +56,7 @@ const TestType = () => {
       <h4>Add Your TestType</h4>
       <div className="form-group">
         <label>Choose Category</label>
-        <Select data={data} onChange={handleSelectChange} />
+        <SelectCategory data={data} onChange={handleSelectChange} />
       </div>
       <div className="form-group">
         <label>TestTypeName</label>
@@ -67,6 +67,14 @@ const TestType = () => {
           onChange={(e) => {
             setTestType(e.target.value);
           }}
+        />
+      </div>
+      <div>
+        <label>Test Cost</label>
+        <input
+          type="text"
+          value={testCost}
+          onChange={(e) => setTestCost(e.target.value)}
         />
       </div>
       <div>
