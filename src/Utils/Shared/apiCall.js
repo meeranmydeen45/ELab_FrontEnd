@@ -46,3 +46,13 @@ export const getTestParamsAPI = (TestTypeIdPostModel, totlaCost) => {
     TestTypeIdPostModel
   );
 };
+
+export const registerDoctorAPI = (name, gender) => {
+  return axios.post(
+    `https://localhost:44334/api/addfields/register-doctor/?name=${name}&gender=${gender}`
+  );
+};
+
+export const getDoctors = () => {
+  return axios.get(`https://localhost:44334/api/addfields/get-doctors`);
+};
