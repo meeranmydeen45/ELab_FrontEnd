@@ -1,8 +1,8 @@
 import React from "react";
-import { getTestParamsAPI } from "../Utils/Shared/apiCall";
 
 export default function ChxBoxSelectionPreview(props) {
   const data = props.data;
+  const OnClick = props.onClick;
 
   const totalCost = data.reduce((sum, item) => sum + parseInt(item.cost), 0);
   const tableBody = data.map((item, i) => {
@@ -14,24 +14,6 @@ export default function ChxBoxSelectionPreview(props) {
     );
   });
 
-  const handleConfirmClick = () => {
-    let arrayofIds = [];
-    for (let i = 0; i < data.length; i++) {
-      arrayofIds.push(data[i].id);
-    }
-    let TestTypeIdPostModel = {};
-    TestTypeIdPostModel.TestTypeId = arrayofIds;
-
-    const promiseParams = getTestParamsAPI(TestTypeIdPostModel, totalCost);
-    promiseParams
-      .then((res) => {
-        let data = res.data;
-        console.log(data);
-      })
-      .catch((err) => {
-        alert("Error Occured whilte Fetching Params");
-      });
-  };
   return (
     <div className="preview-checkbox-selection">
       <p style={{ textAlign: "center" }}>Test Preview</p>
@@ -52,7 +34,7 @@ export default function ChxBoxSelectionPreview(props) {
           type="button"
           className="btn btn-primary"
           value="Confirm"
-          onClick={handleConfirmClick}
+          onClick={OnClick}
         />
         <label
           style={{

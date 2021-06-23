@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { getDataForTestSelection } from "../Utils/Shared/apiCall";
+import {
+  getDataForTestSelection,
+  getTestParamsAPI,
+} from "../Utils/Shared/apiCall";
 import TestSelectionCheckBox from "../Fields/CheckBox/TestSelectionCheckBox";
 import ChxBoxSelectionPreview from "../Pages/CheckBoxSelectionPreview";
+import Patient from "../Components/Patient";
+import DynamicTextBox from "../Pages/DynamicTextBox";
 import $ from "jquery";
 
 function TestSelection() {
   const [checkboxData, setCheckBoxData] = useState([]);
   const [checkboxValue, setCheckBoxValue] = useState([]);
+  const [dynamicTextBoxData, setDynamicTextBoxData] = useState([]);
+  const [dynamicTextBoxField, setDynamicTextBoxField] = useState([]);
 
   useEffect(() => {
     let mounted = true;
@@ -24,6 +31,11 @@ function TestSelection() {
       mounted = false;
     };
   }, []);
+
+  const totalCost = checkboxValue.reduce(
+    (sum, item) => sum + parseInt(item.cost),
+    0
+  );
 
   const handleChekBoxChange = (e) => {
     let inputId = e.target.id;
@@ -67,17 +79,63 @@ function TestSelection() {
     }
   };
 
+  const handleConfirmClick = () => {
+    let arrayofIds = [];
+    for (let i = 0; i < checkboxValue.length; i++) {
+      arrayofIds.push(checkboxValue[i].id);
+    }
+    let TestTypeIdPostModel = {};
+    TestTypeIdPostModel.TestTypeId = arrayofIds;
+
+    const promiseParams = getTestParamsAPI(TestTypeIdPostModel, totalCost);
+    promiseParams
+      .then((res) => {
+        let data = res.data;
+        setDynamicTextBoxData(data);
+        let arrayofObj = [];
+        data.forEach((item, i) => {
+          let idValue = item.testName;
+          item.testParamList.forEach((item, j) => {
+            let obj = {};
+            obj[item.paramName] = "";
+            obj.id = idValue;
+            arrayofObj.push(obj);
+          });
+        });
+        setDynamicTextBoxField(arrayofObj);
+      })
+      .catch((err) => {
+        alert("Error Occured whilte Fetching Params");
+      });
+  };
+
+  const handleDynamicBoxChange = () => {};
   return (
     <div className="testSelection-Page">
-      <h4>Choose Your Test Here</h4>
-      <div>
-        <TestSelectionCheckBox
-          data={checkboxData}
-          onChange={handleChekBoxChange}
-          onHandleIconClick={handleIconClick}
-        ></TestSelectionCheckBox>
+      <div className="top-Page">
+        <Patient />
       </div>
-      <ChxBoxSelectionPreview data={checkboxValue} />
+      <div className="bottom-Page">
+        <h4>Choose Your Test Here</h4>
+        <div>
+          <TestSelectionCheckBox
+            data={checkboxData}
+            onChange={handleChekBoxChange}
+            onHandleIconClick={handleIconClick}
+          ></TestSelectionCheckBox>
+        </div>
+        <ChxBoxSelectionPreview
+          data={checkboxValue}
+          onClick={handleConfirmClick}
+        />
+      </div>
+      <div className="dynamic">
+        <DynamicTextBox
+          data={dynamicTextBoxData}
+          onChange={handleDynamicBoxChange}
+          field={dynamicTextBoxField}
+        />
+      </div>
     </div>
   );
 }

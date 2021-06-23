@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
-import SelectDoctor from "../Fields/Select/SelectDoctor";
-import { getDoctors } from "../Utils/Shared/apiCall";
+import React, { useState } from "react";
+import { storePatientAPI } from "../Utils/Shared/apiCall";
 
 const initialTextBoxValue = {
   patientName: "",
@@ -13,26 +12,8 @@ const initialTextBoxValue = {
 
 function Patient() {
   const [textBoxValue, setTexBoxValue] = useState(initialTextBoxValue);
-  const [docorData, setDoctorData] = useState("");
-  const [doctorId, setDoctorId] = useState("");
-  const [gender, setGender] = useState("");
 
-  useEffect(() => {
-    let mounted = true;
-    const promiseDoctor = getDoctors();
-    promiseDoctor
-      .then((res) => {
-        let serverData = res.data;
-        if (mounted) setDoctorData(serverData);
-      })
-      .catch((err) => {
-        console.log(err);
-        alert("Error occured while Fetching Doctors");
-      });
-    return function cleanup() {
-      mounted = false;
-    };
-  }, []);
+  const [gender, setGender] = useState("");
 
   const handleTextBoxChange = (e) => {
     let copied = { ...textBoxValue };
@@ -43,15 +24,29 @@ function Patient() {
   const genderSelectChange = (e) => {
     setGender(e.target.value);
   };
-  const doctorSelectChange = (e) => {
-    let value = e.target.value;
-    let arrayValue = value.split("-");
-    let doctorId = arrayValue[0];
-    let doctorGender = arrayValue[1];
-    setDoctorId(doctorId);
+
+  const handleSave = () => {
+    if (
+      textBoxValue.patientName !== "" &&
+      textBoxValue.mobileNumber !== "" &&
+      gender !== "CHOOSE"
+    ) {
+      const promiseSave = storePatientAPI(textBoxValue, gender);
+      promiseSave
+        .then((res) => {
+          let serverData = res.data;
+          alert(serverData);
+          setTexBoxValue(initialTextBoxValue);
+        })
+        .catch((err) => {
+          console.log(err);
+          alert("Error Occured while Saving Patient Info");
+        });
+    } else {
+      alert("Enter Valid Data");
+    }
   };
-  console.log(gender);
-  console.log(doctorId);
+
   return (
     <div>
       <h4>Provide Patient Info</h4>
@@ -91,10 +86,7 @@ function Patient() {
           <option>OTHERS</option>
         </select>
       </div>
-      <div>
-        <label>Doctor</label>
-        <SelectDoctor data={docorData} onChange={doctorSelectChange} />
-      </div>
+
       <div>
         <label>BloodGroup</label>
         <input
@@ -123,7 +115,7 @@ function Patient() {
         />
       </div>
       <div>
-        <input type="button" value="SAVE" />
+        <input type="button" value="SAVE" onClick={handleSave} />
       </div>
     </div>
   );
