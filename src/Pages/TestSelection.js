@@ -14,7 +14,8 @@ function TestSelection() {
   const [checkboxValue, setCheckBoxValue] = useState([]);
   const [dynamicTextBoxData, setDynamicTextBoxData] = useState([]);
   const [dynamicTextBoxField, setDynamicTextBoxField] = useState([]);
-
+  const [renderDynamic, setRenderDynamic] = useState(false);
+  let component = "Component";
   useEffect(() => {
     let mounted = true;
     const promiseDataForCheckBox = getDataForTestSelection();
@@ -94,15 +95,21 @@ function TestSelection() {
         setDynamicTextBoxData(data);
         let arrayofObj = [];
         data.forEach((item, i) => {
-          let idValue = item.testName;
-          item.testParamList.forEach((item, j) => {
-            let obj = {};
-            obj[item.paramName] = "";
-            obj.id = idValue;
-            arrayofObj.push(obj);
-          });
+          let obj = {};
+          obj.id = item.testName;
+          obj.array = [];
+          if (item.testParamList.length > 0) {
+            item.testParamList.forEach((item, j) => {
+              let obj2 = {};
+              obj2[item.paramName] = "";
+              obj.array.push(obj2);
+            });
+          }
+
+          arrayofObj.push(obj);
         });
         setDynamicTextBoxField(arrayofObj);
+        setRenderDynamic(true);
       })
       .catch((err) => {
         alert("Error Occured whilte Fetching Params");
@@ -110,6 +117,16 @@ function TestSelection() {
   };
 
   const handleDynamicBoxChange = () => {};
+
+  if (renderDynamic) {
+    component = (
+      <DynamicTextBox
+        data={dynamicTextBoxData}
+        onChange={handleDynamicBoxChange}
+        field={dynamicTextBoxField}
+      />
+    );
+  }
   return (
     <div className="testSelection-Page">
       <div className="top-Page">
@@ -129,13 +146,7 @@ function TestSelection() {
           onClick={handleConfirmClick}
         />
       </div>
-      <div className="dynamic">
-        <DynamicTextBox
-          data={dynamicTextBoxData}
-          onChange={handleDynamicBoxChange}
-          field={dynamicTextBoxField}
-        />
-      </div>
+      <div className="dynamic">{component}</div>
     </div>
   );
 }

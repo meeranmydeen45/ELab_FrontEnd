@@ -1,31 +1,27 @@
 import React, { useState } from "react";
 
 function DynamicTextBox({ data, field }) {
-  const [fieldValue, setFieldValue] = useState([]);
+  const [fieldValue, setFieldValue] = useState(field);
 
-  const handleTextBoxChange = (e, j) => {
-    let copied = [...field];
-    console.log(j);
-    copied[j][e.target.name] = e.target.value;
+  const handleTextBoxChange = (e, i, j) => {
+    let copied = [...fieldValue];
+    copied[i].array[j][e.target.name] = e.target.value;
     setFieldValue(copied);
   };
-  console.log(fieldValue);
+
   let inputFieldData = data.map((item, i) => {
     return (
-      <div>
+      <div key={i}>
         <label>{item.testName}</label>
+
         {item.testParamList.map((item, j) => {
           return (
-            <div>
+            <div key={j}>
               <input
                 type="text"
                 name={item.paramName}
-                value={() => {
-                  return fieldValue.length > 0
-                    ? fieldValue[j][item.paramName]
-                    : "";
-                }}
-                onChange={(e) => handleTextBoxChange(e, j)}
+                value={fieldValue[i].array[j][item.paramName]}
+                onChange={(e) => handleTextBoxChange(e, i, j)}
               />
               <label>{item.paramName}</label>
               <label>{item.unit}</label>
@@ -37,7 +33,7 @@ function DynamicTextBox({ data, field }) {
       </div>
     );
   });
-
+  console.log(fieldValue);
   return (
     <div>
       <div>{inputFieldData}</div>
